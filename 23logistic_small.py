@@ -11,6 +11,8 @@ def weights_initializer(M):
     return weights
 
 def run_logistic_regression():
+    re_run_number = 10
+
     train_inputs, train_targets = load_train_small()
     valid_inputs, valid_targets = load_valid()
     lambda_list = [0.001, 0.01, 0.1, 1.0]
@@ -33,16 +35,19 @@ def run_logistic_regression():
 
     y_cross_entropy_train = []
     y_cross_entropy_valid = []
+    y_frac_correct_train = []
+    y_frac_correct_valid = []
     x_lambda = []
 
     for lamb in lambda_list:
         hyperparameters['weight_regularization'] = lamb
         run_check_grad(hyperparameters)
+        
         sum_cross_entropy_train = 0
         sum_cross_entropy_valid = 0
         sum_frac_correct_train = 0
         sum_frac_correct_valid = 0
-        for i in range(10):
+        for i in range(re_run_number):
             weights = weights_initializer(M)
             # initalize vars that needs to be averaged later
             cross_entropy_train = None
@@ -77,10 +82,10 @@ def run_logistic_regression():
             sum_frac_correct_train += frac_correct_train
             sum_frac_correct_valid += frac_correct_valid
 
-        avg_cross_entropy_train = sum_cross_entropy_train/10.0
-        avg_cross_entropy_valid = sum_cross_entropy_valid/10.0
-        avg_frac_correct_train = sum_frac_correct_train/10.0
-        avg_frac_correct_valid = sum_frac_correct_valid/10.0
+        avg_cross_entropy_train = sum_cross_entropy_train/float(re_run_number)
+        avg_cross_entropy_valid = sum_cross_entropy_valid/float(re_run_number)
+        avg_frac_correct_train = sum_frac_correct_train/float(re_run_number)
+        avg_frac_correct_valid = sum_frac_correct_valid/float(re_run_number)
 
         # only print at the end some stats
         stat_msg = "LAMBDA:{:3f}   ITERATION:{:4d}  AVG TRAIN CE:{:.6f}  "
@@ -94,14 +99,29 @@ def run_logistic_regression():
         
         y_cross_entropy_train.append(avg_cross_entropy_train)
         y_cross_entropy_valid.append(avg_cross_entropy_valid)
+
+        y_frac_correct_train.append(avg_frac_correct_train)
+        y_frac_correct_valid.append(avg_frac_correct_valid)
+        
         x_lambda.append(lamb)
         
+    plt.figure(1)
     plt.plot(x_lambda, y_cross_entropy_train)
     plt.plot(x_lambda, y_cross_entropy_valid)
-    plt.legend(['train', 'valid'], loc='upper right')
+    plt.legend(['train', 'valid'], loc='upper right') 
     plt.xlabel('lambda')
     plt.ylabel('cross entropy')
-    plt.title('train small')
+    plt.title('minist_train_small_cross_entropy')
+    # ce.show()
+
+    plt.figure(2)
+    plt.plot(x_lambda, y_frac_correct_train)
+    plt.plot(x_lambda, y_frac_correct_valid)
+    plt.legend(['train', 'valid'], loc='upper right') 
+    plt.xlabel('lambda')
+    plt.ylabel('classification rate')
+    plt.title('minist_train_small_classification_rate')
+    # classification_rate.show()
     plt.show()
 
 def run_check_grad(hyperparameters):

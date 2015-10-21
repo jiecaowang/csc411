@@ -66,8 +66,7 @@ def logistic(weights, data, targets, hyperparameters):
     f = np.sum(np.log(1.0 + np.exp(-1.0*z))) + np.sum(np.multiply((1.0 - targets), z))
     y_minus_t_column = y - targets
     y_minus_t_row = y_minus_t_column.T
-    df_bias = np.sum(y_minus_t_column)
-    df = np.c_[np.dot(y_minus_t_row, data), np.array([df_bias])].T
+    df = (np.dot(y_minus_t_row, data_with_bias_column)).T
     return f, df, y
 
 
@@ -92,35 +91,39 @@ def logistic_pen(weights, data, targets, hyperparameters):
         df:            (M+1) x 1 vector of derivative of f w.r.t. weights.
         y:       N x 1 vector of probabilities.
     """
-
+    
+    ################### working
     # y = logistic_predict(weights, data)
-    # weights_with_no_bias = np.delete(weights, [weights.shape[0]-1], 0)
+
+    # # get f
     # data_with_bias_column = np.c_[data, np.ones(data.shape[0])]
     # z = np.dot(data_with_bias_column, weights)
-    # f = np.sum(np.log(1.0 + np.exp(-1.0*z))) + np.sum(np.multiply((1.0 - targets), z)) + lamb * 0.5 * np.sum(np.multiply(weights_with_no_bias, weights_with_no_bias))
+    # lamb = hyperparameters['weight_regularization']
+    # weights_with_no_bias = weights[:weights.shape[0] - 1,:]
+
+    # f = np.sum(np.log(1.0 + np.exp(-1.0*z))) + np.sum(np.multiply((1.0 - targets), z)) + np.sum(lamb * 0.5 * np.multiply(weights_with_no_bias, weights_with_no_bias))
 
     # y_minus_t_column = y - targets
     # y_minus_t_row = y_minus_t_column.T
-    # df_bias = np.sum(y_minus_t_column)
-    # df = np.c_[np.dot(y_minus_t_row, data), np.array([df_bias])].T
-    # lamb = hyperparameters['weight_regularization']
-    # weights_with_no_bias = np.delete(weights, [weights.shape[0]-1], 0)
-    # f += np.sum(lamb * 0.5 * np.multiply(weights_with_no_bias, weights_with_no_bias))
-    # df_weights = df[:df.shape[0] - 1,:]
-    # df_bias = df[df.shape[0] - 1:df.shape[0],:]
-    # df_weights += np.sum(lamb * weights_with_no_bias)
-    # df_bias += lamb * np.sum(weights[weights.shape[0] - 1]) # this is just one single number in the sum
-    # df = np.r_[df_weights, df_bias]
+    # df_with_no_pen = (np.dot(y_minus_t_row, data_with_bias_column))
+    # df = (df_with_no_pen + lamb * np.append(weights[:-1], 0)).T
+    ################### working
 
+    #################### second try
     y = logistic_predict(weights, data)
 
+    # # get f
     data_with_bias_column = np.c_[data, np.ones(data.shape[0])]
     z = np.dot(data_with_bias_column, weights)
-    p_y_zeros = np.multiply(sigmoid(z), np.exp(-z))
-
     lamb = hyperparameters['weight_regularization']
-    f = np.sum(np.log(1.0 + np.exp(-z)) + np.multiply(z, 1.0 - targets)) + lamb * 0.5 * np.sum(np.square(weights[:-1]))
+    weights_with_no_bias = weights[:weights.shape[0] - 1,:]
 
-    v = (1.0 - targets - p_y_zeros)
-    df = (data_with_bias_column.T.dot(v).T + lamb * np.append(weights[:-1], 0)).T
+    f = np.sum(np.log(1.0 + np.exp(-1.0*z))) + np.sum(np.multiply((1.0 - targets), z)) + np.sum(lamb * 0.5 * np.multiply(weights_with_no_bias, weights_with_no_bias))
+
+    # # get df
+    y_minus_t_column = y - targets
+    y_minus_t_row = y_minus_t_column.T
+    df_with_no_pen = (np.dot(y_minus_t_row, data_with_bias_column))
+    df = (df_with_no_pen + lamb * np.append(weights[:-1], 0)).T
+    #################### second try
     return f, df, y
