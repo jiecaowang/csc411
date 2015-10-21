@@ -71,6 +71,9 @@ class NaiveBayesClassifier(object):
     def compute_accuracy(self, test_data, test_label):
         return (self.predict(test_data) == test_label).mean()
 
+def findClassificationRate(target, prediction):
+    return float(np.sum(np.multiply(target, np.floor(prediction+0.5))) + np.sum(np.multiply(1.0 - target, np.round(1.0 - prediction))))/target.shape[0]
+
 def main():
     """
     Learn a Naive Bayes classifier on the digit dataset, evaluate its
@@ -82,6 +85,19 @@ def main():
     test_inputs, test_targets = load_test()
 
     # add your code here (it should be less than 10 lines)
+    nbc = NaiveBayesClassifier()
+    nbc.train(train_inputs, train_targets)
+
+    nbc_train_output = nbc.predict(train_inputs)
+    nbc_test_output = nbc.predict(test_inputs)
+
+    training_classification_rate = findClassificationRate(train_targets, nbc_train_output)
+    test_classification_rate = findClassificationRate(test_targets, nbc_test_output)
+    stat_msg = "TRAINING classification_rate = {:4f}\nTEST classification_rate = {:4f}"
+    print stat_msg.format(training_classification_rate, test_classification_rate)
+
+    plot_digits(nbc.mean)
+    plot_digits(nbc.var)
 
 if __name__ == '__main__':
     main()

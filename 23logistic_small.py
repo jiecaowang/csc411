@@ -15,7 +15,8 @@ def run_logistic_regression():
 
     train_inputs, train_targets = load_train_small()
     valid_inputs, valid_targets = load_valid()
-    lambda_list = [0.001, 0.01, 0.1, 1.0]
+    # lambda_list = [0.001, 0.01, 0.1, 1.0]
+    lambda_list = [0]
     N, M = train_inputs.shape
 
     # TODO: Set hyperparameters
