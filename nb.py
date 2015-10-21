@@ -96,8 +96,8 @@ def main():
     stat_msg = "TRAINING classification_rate = {:4f}\nTEST classification_rate = {:4f}"
     print stat_msg.format(training_classification_rate, test_classification_rate)
 
-    plot_digits(nbc.mean)
-    plot_digits(nbc.var)
+    # plot_digits(nbc.mean)
+    # plot_digits(nbc.var)
 
 if __name__ == '__main__':
     main()
